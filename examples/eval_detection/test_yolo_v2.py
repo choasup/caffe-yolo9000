@@ -18,7 +18,7 @@ import caffe
 import math
 # If you get "No module named _caffe", either you have not built pycaffe or you have the wrong path.
 
-caffe.set_mode_gpu()
+caffe.set_mode_cpu()
 
 model_def = './darknet_v3/gnet_region_test_darknet_deploy.prototxt'
 model_weights = './../yolo/darknet_v3/models/gnet_yolo_region_darknet_v3_pretrain_rectify_iter_200000.caffemodel'
@@ -180,7 +180,7 @@ def det(image, image_id):
     		fid.write('\n')
     		fid.close()
 
-data_root = '/home/data/liuyong/choas/Datasets/PASCOL_VOC/VOC2007/';
+data_root = '/choas/Datasets/PASCOL_VOC/VOC2007/';
 index = 0;
 for line in open('test_2007.txt', 'r'):
 	index += 1
