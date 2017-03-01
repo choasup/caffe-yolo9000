@@ -41,7 +41,7 @@
 ```
 #### MODEL=./models/gnet_yolo_region_darknet_v3_pretrain_rectify_iter_200000.caffemodel
 #### model is here:
->
+> https://pan.baidu.com/s/1nvHggFB     t7ui
 
 ### Test (The second way offline)
 ```Shell
