@@ -9,6 +9,11 @@
 > https://github.com/yeahkun/caffe-yolo
 ## Usage
 
+### caffe
+```Shell
+   vim Makefile.config
+   make
+```
 
 ### Data preparation
 ```Shell
