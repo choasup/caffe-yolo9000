@@ -6,7 +6,9 @@
 
 > http://pjreddie.com/yolo9000/
 
+> https://github.com/yeahkun/caffe-yolo
 ## Usage
+
 
 ### Data preparation
 ```Shell
