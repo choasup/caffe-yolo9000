@@ -5,7 +5,7 @@ CAFFE_HOME=../../..
 SOLVER=./gnet_region_solver_darknet_v3.prototxt
 #SNAPSHOT=./models/gnet_yolo_region_darknet_v3_multifixed_iter_2000.solverstate
 #WEIGHTS=./gnet_yolo_region_darknet_v3_pretrain_iter_360000.caffemodel
-SNAPSHOT=./models/gnet_yolo_region_darknet_v3_pretrain_rectify_iter_120000.solverstate
+#SNAPSHOT=./models/gnet_yolo_region_darknet_v3_pretrain_rectify_iter_120000.solverstate
 $CAFFE_HOME/build/tools/caffe train \
-    --solver=$SOLVER --snapshot=$SNAPSHOT --gpu=0 2>&1 | tee train_darknet_v3_pretrain_rectify.log #--weights=$WEIGHTS #--gpu=0,1
+    --solver=$SOLVER --gpu=0 2>&1 | tee train_darknet_v3_pretrain_rectify.log #--weights=$WEIGHTS #--gpu=0,1
 
