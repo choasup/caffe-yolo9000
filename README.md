@@ -1,4 +1,4 @@
-# CAFFE for YOLO
+# CAFFE for YOLO9000
 
 ## Reference
 
@@ -32,8 +32,14 @@
   mkdir models
   ./train_darknet_v3.sh
 ```
+### Test a image
+```
+   cd examples/yolo/eval_detection
+   jupyter notebook
+   test_det.ipynb
+```
 
-### Test (The first way online)
+### Eval VOCtest2007(The first way online)
 ```Shell
   # if everything goes well, mAP reach ~56.
   cd examples/yolo/darknet_v3
@@ -43,8 +49,10 @@
 #### model is here:
 > https://pan.baidu.com/s/1nvHggFB     t7ui
 
-### Test (The second way offline)
+### Eval VOCtest2007(The second way offline)
 ```Shell
   cd examples/eval_detection
   python test_yolo_v2.py
 ```
+
+## yolo9000-Tree example prototxts, model and .sh will update soon!
