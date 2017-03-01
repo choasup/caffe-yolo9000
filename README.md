@@ -33,6 +33,9 @@
   cd examples/yolo/darknet_v3
   ./test_darknet_v3.sh
 ```
+MODEL=./models/gnet_yolo_region_darknet_v3_pretrain_rectify_iter_200000.caffemodel
+model is here:
+>
 
 ### Test (The second way offline)
 ```Shell
