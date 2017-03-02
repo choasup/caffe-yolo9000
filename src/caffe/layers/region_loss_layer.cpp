@@ -121,7 +121,7 @@ void delta_region_class(Dtype* input_data, Dtype* &diff, int index, int class_la
       pred *= input_data[index + class_label];
       //LOG(INFO) << "class_label: " << class_label << " p: " << pred; 
       int g = t->group[class_label];
-      int offset = t->group_size[g];
+      int offset = t->group_offset[g];
       for (int i = 0; i < t->group_size[g]; ++ i){
         diff[index + offset + i] = (-1.0) * scale * (0 - input_data[index + offset + i]);
       }
