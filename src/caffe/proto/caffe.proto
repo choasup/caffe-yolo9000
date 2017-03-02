@@ -596,6 +596,7 @@ message RegionLossParameter{
   optional uint32 random = 15 [default = 1];
   repeated float biases = 16;
   optional string softmax_tree = 17;
+  optional string class_map = 18;
 }
 
 message EvalDetectionParameter {
