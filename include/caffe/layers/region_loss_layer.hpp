@@ -8,6 +8,7 @@
 #include "caffe/proto/caffe.pb.h"
 #include <string>
 #include "caffe/layers/loss_layer.hpp"
+#include <map>
 
 namespace caffe {
 template <typename Dtype>
@@ -87,6 +88,9 @@ class RegionLossLayer : public LossLayer<Dtype> {
   Blob<Dtype> diff_;
   Blob<Dtype> real_diff_;
   tree t_;
+
+  string class_map_;
+  map<int, int> cls_map_;
 };
 
 }  // namespace caffe
