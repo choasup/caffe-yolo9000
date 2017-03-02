@@ -10,6 +10,8 @@
 #include "caffe/util/math_functions.hpp"
 #include "caffe/layers/sigmoid_layer.hpp"
 
+int iter = 0;
+
 namespace caffe {
 template <typename Dtype>
 Dtype Overlap(Dtype x1, Dtype w1, Dtype x2, Dtype w2) {
@@ -371,7 +373,7 @@ void RegionLossLayer<Dtype>::Forward_cpu(
 	      diff[index + 4] = 0;
              // LOG(INFO)<<"best_iou: "<<best_iou<<" index:"<<index;
 	    }
-	    if (0){
+	    if (iter < 12800 / bottom[0]->num()){
    	      vector<Dtype> truth;
 	      truth.clear();
 	      truth.push_back((i + .5) / side_); //center of i,j
@@ -504,8 +506,9 @@ void RegionLossLayer<Dtype>::Forward_cpu(
   }
   top[0]->mutable_cpu_data()[0] = loss;
   //LOG(INFO) << "avg_noobj: " << avg_anyobj / (side_ * side_ * num_ * bottom[0]->num());	
-  LOG(INFO) << "loss: " << loss;
-  LOG(INFO) << "avg_noobj: "<< avg_anyobj/(side_*side_*num_*bottom[0]->num()) << " avg_obj: " << avg_obj/count <<" avg_iou: " << avg_iou/count << " avg_cat: " << avg_cat/class_count << " recall: " << recall/count << " count: "<<count << " class_count: "<< class_count;
+  iter ++;
+  LOG(INFO) << "iter: " << iter <<" loss: " << loss;
+  LOG(INFO) << "avg_noobj: "<< avg_anyobj/(side_*side_*num_*bottom[0]->num()) << " avg_obj: " << avg_obj/count <<" avg_iou: " << avg_iou/count << " avg_cat: " << avg_cat/class_count << " recall: " << recall/count << " class_count: "<< class_count;
 }
 
 template <typename Dtype>
