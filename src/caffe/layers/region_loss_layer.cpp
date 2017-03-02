@@ -2,6 +2,9 @@
 #include <cfloat>
 #include <vector>
 #include <cmath>
+#include <iostream>
+#include <fstream>
+#include <sstream>
 
 #include "caffe/layers/region_loss_layer.hpp"
 #include "caffe/util/math_functions.hpp"
@@ -122,6 +125,7 @@ void delta_region_class(Dtype* input_data, Dtype* &diff, int index, int class_la
       //LOG(INFO) << "class_label: " << class_label << " p: " << pred; 
       int g = t->group[class_label];
       int offset = t->group_offset[g];
+      //LOG(INFO) << "class_label: " << class_label << " p: " << pred << " offset: " << offset; 
       for (int i = 0; i < t->group_size[g]; ++ i){
         diff[index + offset + i] = (-1.0) * scale * (0 - input_data[index + offset + i]);
       }
@@ -169,7 +173,29 @@ void RegionLossLayer<Dtype>::LayerSetUp(
   softmax_tree_ = param.softmax_tree(); //string
   if (softmax_tree_ != "")
     t_ = tree(softmax_tree_);
-  LOG(INFO) << "t_.groups: " << t_.groups;
+  
+  class_map_ = param.class_map();
+  if (class_map_ != ""){
+    string line;
+    std::fstream fin(class_map_.c_str());
+    if (!fin){
+      LOG(INFO) << "no map file";
+    }
+    
+    int index = 0;
+    int id = 0;
+    while (getline(fin, line)){
+      stringstream ss;
+      ss << line;
+      ss >> id;
+      
+      cls_map_[index] = id;
+      index ++;
+    }
+    fin.close();
+  }  
+
+  //LOG(INFO) << "t_.groups: " << t_.groups;
   //jitter_ = param.jitter(); 
   //rescore_ = param.rescore();
   
@@ -299,7 +325,7 @@ void RegionLossLayer<Dtype>::Forward_cpu(
 		    maxi = index;
                   }
                 }
-	    LOG(INFO) << "delta hierarchy prob";
+	    //LOG(INFO) << "delta hierarchy prob";
             delta_region_class(swap_data, diff, maxi + 5, class_label, num_class_, softmax_tree_, &t_, class_scale_, &avg_cat);
 	    if (swap_data[maxi + 4] < 0.3) diff[maxi + 4] = -1 * object_scale_ *  (0.3 - swap_data[maxi + 4]) * (swap_data[maxi + 4]) * (1 - swap_data[maxi + 4]);
             else diff[maxi + 4] = 0;
@@ -423,8 +449,14 @@ void RegionLossLayer<Dtype>::Forward_cpu(
 	diff[best_index + 4] = (-1.0) * object_scale_ * (1 - swap_data[best_index + 4]) * (swap_data[best_index + 4] * (1 - swap_data[best_index + 4]));
 	//if (rescore)
 	//std::cout<<"diff:"<<diff[best_index+4]<<std::endl;
-        //LOG(INFO) << best_index << " " << best_n;	
+        //LOG(INFO) << best_index << " " << best_n;
+	
+	//if (l.map) class_label = l.map;
+	//LOG(INFO) << "cls_label: " << class_label;
+        
+        if (class_map_ != "") class_label = cls_map_[class_label];	
 	delta_region_class(swap_data, diff, best_index + 5, class_label, num_class_, softmax_tree_, &t_, class_scale_, &avg_cat); //softmax_tree_
+	
 	//std::cout<<"###################real diff#################"<<std::endl;		
 	//for (int i = 0; i < num_class_; i ++)
 	//	std::cout<<diff[best_index+5+i]<<",";
