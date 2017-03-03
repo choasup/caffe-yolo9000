@@ -266,7 +266,6 @@ def main():
     	save_csv_files(args.logfile_path, args.output_dir, train_dict_list,
                    delimiter=args.delimiter)
     plot_chart(args.logfile_path+'.train')
-    plot_chart('./log/train_darknet_anchor.log.train')
 
 if __name__ == '__main__':
     main()
