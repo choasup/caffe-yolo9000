@@ -55,7 +55,7 @@
   python test_yolo_v2.py
 ```
 
-### Draw loss(avg_obj, avg_noobj, avg_class, avg_iou, recall) figure
+### Draw loss figure(avg_obj, avg_noobj, avg_class, avg_iou, recall)
 ```
   cd tools/yolo_extra
   python parse_log_yolo.py ./log/train_darknet_anchor.log ./log
