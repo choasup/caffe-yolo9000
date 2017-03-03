@@ -41,7 +41,7 @@
 
 ### Eval VOCtest2007(The first way online)
 ```Shell
-  # if everything goes well, mAP reach ~56.
+  # mAP reach ~56. Because of I train net poorly...you can try.
   cd examples/yolo/darknet_v3
   ./test_darknet_v3.sh
 ```
@@ -53,6 +53,12 @@
 ```Shell
   cd examples/eval_detection
   python test_yolo_v2.py
+```
+
+### Draw loss(avg_obj, avg_noobj, avg_class, avg_iou, recall) figure
+```
+  cd tools/yolo_extra
+  python parse_log_yolo.py ./log/train_darknet_anchor.log ./log
 ```
 
 ##### yolo9000-Tree example prototxts, model and .sh will update soon!
