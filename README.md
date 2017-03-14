@@ -62,9 +62,9 @@
 ```
 
 #### If you want to train your datasets. you should edit the train_prototxt. 
-'''
-[conv_reg layer] num_output = num * (num_class + coords + 1) = 5 * (your_classes_num + 4 + 1)
-[det_loss layer] num_class = your_classes_num
-'''
+```
+   * [conv_reg layer] num_output = num * (num_class + coords + 1) = 5 * (your_classes_num + 4 + 1)
+   * [det_loss layer] num_class = your_classes_num
+```
 
 ##### yolo9000-Tree example prototxts, model and .sh will update soon!
