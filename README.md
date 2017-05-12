@@ -1,4 +1,4 @@
-# I am sorry that I have to close this repository for some reason. If you interested in YOLO9000, you can contact with me. 
+# I am sorry that I have to close this repository for some reasons. If you are interested in YOLO9000, you can contact with me. 
 
 # CAFFE for YOLO9000
 
