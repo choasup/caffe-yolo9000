@@ -1,0 +1,8 @@
+I0322 15:24:02.663682  6504 convert_annoset.cpp:122] A total of 5000 images.
+I0322 15:24:02.690961  6504 db_lmdb.cpp:35] Opened lmdb data/coco/lmdb/coco_minival_lmdb
+I0322 15:24:53.446703  6504 convert_annoset.cpp:195] Processed 1000 files.
+I0322 15:25:39.304417  6504 convert_annoset.cpp:195] Processed 2000 files.
+I0322 15:26:23.598536  6504 convert_annoset.cpp:195] Processed 3000 files.
+I0322 15:27:07.309775  6504 convert_annoset.cpp:195] Processed 4000 files.
+I0322 15:27:55.356879  6504 convert_annoset.cpp:195] Processed 5000 files.
+/home/data/liuyong/choas/method/ssdcaffe-yolo9000/build/tools/convert_annoset --anno_type=detection --label_type=json --label_map_file=/home/data/liuyong/choas/method/ssdcaffe-yolo9000/data/coco/../../data/coco/labelmap_coco.prototxt --check_label=True --min_dim=0 --max_dim=0 --resize_height=0 --resize_width=0 --backend=lmdb --shuffle=False --check_size=False --encode_type=jpg --encoded=True --gray=False /home/data/liuyong/choas/datasets/MSCOCO/coco/ /home/data/liuyong/choas/method/ssdcaffe-yolo9000/data/coco/../../data/coco/minival.txt data/coco/lmdb/coco_minival_lmdb
