@@ -1,5 +1,7 @@
 ### caffe-YOLO9000
 
+Using the data processing of SSD.
+
 1.voc
 label_map: bg: 0 classes: 1-20
 
@@ -11,5 +13,3 @@ mAP achieved 66.80
 3.hier
 (1)prepare voc.map voc.name voc.tree
 defined tree file need continous group.
-
-
