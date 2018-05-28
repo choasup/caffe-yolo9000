@@ -24,6 +24,7 @@
 Like SSD data setting.
 ```Shell
   cd data/VOC0712
+  
   vim create_data.sh
   ./create_data.sh 
 ```
@@ -31,12 +32,16 @@ Like SSD data setting.
 ### Train
 ```Shell
   cd examples/yolo/darknet_voc
-  # change related path in script train.sh
   mkdir models
+  
   # edit according yourself
   vim gnet_region_train_darknet448_voc.prototxt
   vim gnet_region_test_darkent448_voc.prototxt
   vim gnet_region_solver_darkent448_voc.prototxt
+  
+  # change related path in script train.sh
+  vim train_darknet448.sh
+  
   ./train_darknet448.sh
 ```
 
