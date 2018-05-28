@@ -30,11 +30,16 @@ Like SSD data setting.
 
 ### Train
 ```Shell
-  cd examples/yolo/darknet_v3
+  cd examples/yolo/darknet_voc
   # change related path in script train.sh
   mkdir models
-  ./train_darknet_v3.sh
+  # edit according yourself
+  vim gnet_region_train_darknet448_voc.prototxt
+  vim gnet_region_test_darkent448_voc.prototxt
+  vim gnet_region_solver_darkent448_voc.prototxt
+  ./train_darknet448.sh
 ```
+
 ### Test a image
 ```
    cd examples/yolo/eval_detection
