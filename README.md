@@ -19,13 +19,11 @@
 (Be careful: caffe&caffe2 PYTHONPATH conflict)
 
 ### Data preparation
+Like SSD data setting.
 ```Shell
-  cd data/yolo
-  mkdir lmdb
-  ln -s /your/path/to/VOCdevkit/ .
-  python ./get_list.py
-  # change related path in script convert.sh
-  ./convert.sh 
+  cd data/VOC0712
+  vim create_data.sh
+  ./create_data.sh 
 ```
 
 ### Train
