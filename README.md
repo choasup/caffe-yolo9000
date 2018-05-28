@@ -38,10 +38,11 @@ Like SSD data setting.
   vim gnet_region_train_darknet448_voc.prototxt
   vim gnet_region_test_darkent448_voc.prototxt
   vim gnet_region_solver_darkent448_voc.prototxt
-  
+
   # download pretrain_model
-  url: https://pan.baidu.com/s/1c71EB-6A1xQb2ImOISZiHA password: 9u5v
-  
+```  
+  > https://pan.baidu.com/s/1c71EB-6A1xQb2ImOISZiHA password: 9u5v
+```
   # change related path in script train.sh
   vim train_darknet448.sh
   
