@@ -39,6 +39,9 @@ Like SSD data setting.
   vim gnet_region_test_darkent448_voc.prototxt
   vim gnet_region_solver_darkent448_voc.prototxt
   
+  # download pretrain_model
+  url: https://pan.baidu.com/s/1c71EB-6A1xQb2ImOISZiHA password: 9u5v
+  
   # change related path in script train.sh
   vim train_darknet448.sh
   
@@ -46,15 +49,11 @@ Like SSD data setting.
 ```
 
 ### Test a image
-```
-   cd examples/yolo/eval_detection
-   jupyter notebook
-   test_det.ipynb
+```Shell
+
 ```
 
-### Eval VOCtest2007(The first way online)
+### Eval mAP
 ```Shell
-  # mAP reach ~56. Because of I train net poorly...you can try.
-  cd examples/yolo/darknet_v3
-  ./test_darknet_v3.sh
+
 ```
