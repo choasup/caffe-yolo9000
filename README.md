@@ -11,7 +11,7 @@
 > https://github.com/weiliu89/caffe/tree/ssd
 ## Usage
 
-### caffe 
+### Caffe 
 ```Shell
    vim Makefile.config
    make clean
