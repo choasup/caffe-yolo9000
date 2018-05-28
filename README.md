@@ -49,15 +49,15 @@ Like SSD data setting.
   ./train_darknet448.sh
 ```
 
-### Test a image
-```Shell
-   vim test_darknet448.sh
-   ./test_darknet448.sh
-```
-
 ### Eval mAP
 ```Shell
    cd demo
    vim demo_yolo.py
    python demo_yolo.py
+```
+
+### Test a image
+```Shell
+   vim test_darknet448.sh
+   ./test_darknet448.sh
 ```
