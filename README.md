@@ -9,13 +9,14 @@
 > https://github.com/yeahkun/caffe-yolo
 ## Usage
 
-### caffe (caffe&caffe2 PYTHONPATH conflict)
+### caffe 
 ```Shell
    vim Makefile.config
    make clean
    make all -j8
    make pycaffe
 ```
+(Be careful: caffe&caffe2 PYTHONPATH conflict)
 
 ### Data preparation
 ```Shell
