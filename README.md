@@ -45,20 +45,3 @@
   cd examples/yolo/darknet_v3
   ./test_darknet_v3.sh
 ```
-#### MODEL=./models/gnet_yolo_region_darknet_v3_pretrain_rectify_iter_200000.caffemodel
-#### model is here:
-> https://pan.baidu.com/s/1nvHggFB     t7ui
-
-### Eval VOCtest2007(The second way offline)
-```Shell
-  cd examples/eval_detection
-  python test_yolo_v2.py
-```
-
-### Draw loss figure(avg_obj, avg_noobj, avg_class, avg_iou, recall)
-```
-  cd tools/yolo_extra
-  python parse_log_yolo.py ./log/train_darknet_anchor.log ./log
-```
-
-##### yolo9000-Tree example prototxts, model and .sh will update soon!
