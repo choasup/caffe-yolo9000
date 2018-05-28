@@ -7,6 +7,8 @@
 > http://pjreddie.com/yolo9000/
 
 > https://github.com/yeahkun/caffe-yolo
+
+> https://github.com/weiliu89/caffe/tree/ssd
 ## Usage
 
 ### caffe 
