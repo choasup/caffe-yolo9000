@@ -278,7 +278,7 @@ void UpdateBBoxByResizePolicy(const ResizeParameter& param,
         y_max = y_max * (new_height - 2 * padding) / old_height;
         y_max = padding + std::min(new_height, y_max);
       } else {
-        padding = new_width - orig_aspect * new_height / 2;
+        padding = (new_width - orig_aspect * new_height) / 2;
         x_min = x_min * (new_width - 2 * padding) / old_width;
         x_min = padding + std::max(0.f, x_min);
         x_max = x_max * (new_width - 2*padding) / old_width;
