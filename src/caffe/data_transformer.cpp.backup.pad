@@ -288,6 +288,33 @@ void DataTransformer<Dtype>::TransformAnnotation(
     const AnnotatedDatum& anno_datum,
     const NormalizedBBox& crop_bbox, const bool do_mirror,
     RepeatedPtrField<AnnotationGroup>* transformed_anno_group_all) {
+    // ------------------------------------ //
+  const Datum& datum = anno_datum.datum();
+  int img_height = 0;
+  int img_width = 0;
+  if (datum.encoded()) {
+#ifdef USE_OPENCV
+        CHECK(!(param_.force_color() && param_.force_gray()))
+        << "cannot set both force_color and force_gray";
+        cv::Mat cv_img;
+        if (param_.force_color() || param_.force_gray()) {
+            // If force_color then decode in color otherwise decode in gray.
+            cv_img = DecodeDatumToCVMat(datum, param_.force_color());
+        } else {
+            cv_img = DecodeDatumToCVMatNative(datum);
+        }
+        img_height = cv_img.rows;
+        img_width = cv_img.cols;
+        // Transform the cv::image into blob.
+#else
+        LOG(FATAL) << "Encoded datum requires OpenCV; compile with USE_OPENCV.";
+#endif  // USE_OPENCV
+    }
+  //int img_height = cv_img.rows();
+  //int img_width = cv_img.cols();
+  // --------------------------------------------//
+
+
   if (anno_datum.type() == AnnotatedDatum_AnnotationType_BBOX) {
     // Go through each AnnotationGroup.
     for (int g = 0; g < anno_datum.annotation_group_size(); ++g) {
@@ -298,17 +325,26 @@ void DataTransformer<Dtype>::TransformAnnotation(
       for (int a = 0; a < anno_group.annotation_size(); ++a) {
         const Annotation& anno = anno_group.annotation(a);
         const NormalizedBBox& bbox = anno.bbox();
-        //LOG(INFO) << "ori has anno.";
-	
-	if (param_.has_emit_constraint() &&
-            !MeetEmitConstraint(crop_bbox, bbox, param_.emit_constraint())) {
-           //LOG(INFO) << "constraint";
-	   continue;
+        //if (param_.has_emit_constraint() &&
+        //    !MeetEmitConstraint(crop_bbox, bbox, param_.emit_constraint())) {
+        //  continue;
+        //}
+       
+        // ------------------------------------ resize pad .........//
+        int pad = 0;
+        if (param_.has_resize_param()) {
+            if (param_.resize_param().resize_mode() == ResizeParameter_Resize_mode_FIT_LARGE_SIZE_AND_PAD)
+                pad = 1;
+ 	    //LOG(INFO) << "mode:" << param_.resize_param().resize_mode();
         }
         
+        //LOG(INFO) << "data transform pad:" << pad;
+        // --------------------------------------------//
+
         // Adjust bounding box annotation.
         NormalizedBBox proj_bbox;
-        if (ProjectBBox(crop_bbox, bbox, &proj_bbox)) {
+        // -------------------------------------------//
+        if (ProjectBBox(crop_bbox, bbox, &proj_bbox, pad, img_height, img_width)) {
           has_valid_annotation = true;
           Annotation* transformed_anno =
               transformed_anno_group.add_annotation();
@@ -320,18 +356,13 @@ void DataTransformer<Dtype>::TransformAnnotation(
             transformed_bbox->set_xmin(1 - transformed_bbox->xmax());
             transformed_bbox->set_xmax(1 - temp);
           }
-        } //else
-	//LOG(INFO) << "not project";
+        }
       }
       // Save for output.
       if (has_valid_annotation) {
-	//LOG(INFO)<< "now has anno.";
         transformed_anno_group.set_group_label(anno_group.group_label());
         transformed_anno_group_all->Add()->CopyFrom(transformed_anno_group);
       }
-      //else
-	//LOG(INFO)<< "now no anno.";
-      
     }
   } else {
     LOG(FATAL) << "Unknown annotation type.";
@@ -477,11 +508,6 @@ void DataTransformer<Dtype>::Transform(const cv::Mat& cv_img,
     cv_resized_image = ApplyResize(cv_img, param_.resize_param());
     UpdateBBoxByResizePolicy(param_.resize_param(), img_width, img_height,
                              crop_bbox);
-
-    // --------//
-    //cv::imwrite("resize.jpg", cv_resized_image);
-    //LOG(INFO) << "crop_bbox:" << crop_bbox->xmin() << " " << crop_bbox->xmax() << " " << crop_bbox->ymin() << " " << crop_bbox->ymax();
-
   } else {
     cv_resized_image = cv_img;
   }
@@ -509,7 +535,7 @@ void DataTransformer<Dtype>::Transform(const cv::Mat& cv_img,
       }
     }
   }
-	 
+
   int crop_h = param_.crop_h();
   int crop_w = param_.crop_w();
   if (crop_size) {

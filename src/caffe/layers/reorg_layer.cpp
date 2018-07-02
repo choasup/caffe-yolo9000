@@ -55,7 +55,7 @@ void ReorgLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& bottom,
       const vector<Blob<Dtype>*>& top) {
   Dtype* input_data = bottom[0]->mutable_cpu_data();
   Dtype* output_data = top[0]->mutable_cpu_data();
-  reorg_cpu(input_data, bottom[0]->width(), bottom[0]->height(), bottom[0]->channels(), bottom[0]->num(), stride_, 1, output_data);
+  reorg_cpu(input_data, bottom[0]->width(), bottom[0]->height(), bottom[0]->channels(), bottom[0]->num(), stride_, 0, output_data);
 }
 
 template <typename Dtype>
@@ -64,7 +64,7 @@ void ReorgLayer<Dtype>::Backward_cpu(const vector<Blob<Dtype>*>& top,
   if(propagate_down[0]) {
     Dtype* input_data = bottom[0]->mutable_cpu_data();
     Dtype* output_data = top[0]->mutable_cpu_data();
-    reorg_cpu(input_data, bottom[0]->width(), bottom[0]->height(), bottom[0]->channels(), bottom[0]->num(), stride_, 0, output_data);
+    reorg_cpu(input_data, bottom[0]->width(), bottom[0]->height(), bottom[0]->channels(), bottom[0]->num(), stride_, 1, output_data);
   }
 }
 

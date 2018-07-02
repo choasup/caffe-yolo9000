@@ -254,12 +254,17 @@ void UpdateBBoxByResizePolicy(const ResizeParameter& param,
   float new_height = param.height();
   float new_width = param.width();
   float orig_aspect = static_cast<float>(old_width) / old_height;
-  float new_aspect = new_width / new_height;
+  float new_aspect = new_width / new_height; 
+  //LOG(INFO) << "nw, nh" << new_width << " "<< new_height;
+  //LOG(INFO) <<"ow, oh" << old_width << " "  << old_height;
 
+  
   float x_min = bbox->xmin() * old_width;
   float y_min = bbox->ymin() * old_height;
   float x_max = bbox->xmax() * old_width;
   float y_max = bbox->ymax() * old_height;
+  //LOG(INFO) << "ori:"<<x_min << " " << x_max << " " << y_min << " " << y_max;
+
   float padding;
   switch (param.resize_mode()) {
     case ResizeParameter_Resize_mode_WARP:
@@ -301,6 +306,8 @@ void UpdateBBoxByResizePolicy(const ResizeParameter& param,
     default:
       LOG(FATAL) << "Unknown resize mode.";
   }
+  //LOG(INFO) << "resize:"<<x_min << " " << x_max << " " << y_min << " " << y_max; 
+ 
   bbox->set_xmin(x_min / new_width);
   bbox->set_ymin(y_min / new_height);
   bbox->set_xmax(x_max / new_width);

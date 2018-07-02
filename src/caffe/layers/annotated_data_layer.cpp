@@ -233,12 +233,12 @@ void AnnotatedDataLayer<Dtype>::load_batch(Batch<Dtype>* batch) {
   }
     
   //========================= visual image (top_data) ====================//
-  /*for (int b = 0; b < batch->data_.num(); ++ b) {
+  for (int b = 0; b < batch->data_.num(); ++ b) {
      cv::Mat img(batch->data_.width(), batch->data_.height(), CV_32FC3, cv::Scalar(0, 0, 0));
      for (int c = 0; c < batch->data_.channels(); ++ c) 
 	for (int h = 0; h < batch->data_.height(); ++ h)
 	   for (int w = 0; w < batch->data_.width(); ++ w) {
-	      img.at<cv::Vec3f>(cv::Point(w, h))[c] = batch->data_.data_at(b, c, h, w);
+	      img.at<cv::Vec3f>(cv::Point(w, h))[c] = batch->data_.data_at(b, c, h, w) * 255.0;
         }
      
      stringstream ss;
@@ -248,17 +248,27 @@ void AnnotatedDataLayer<Dtype>::load_batch(Batch<Dtype>* batch) {
      ss << id;
      ss >> str;
      str = "img/" + str + ".jpg";
-     cv::imwrite(str, img);
+     
+
+    for (int i = 0; i < num_bboxes; i ++) {
+       //LOG(INFO) << "item: " << top_label[i * 8 + 0] << " label:" << top_label[i * 8 + 1] << " " << top_label[i * 8 + 2];
+
+      //for (int j = 3; j <= 6; j ++)
+      //LOG(INFO) << top_label[i * 8 + j];
+      cv::rectangle(img,cvPoint(top_label[i*8+3] * 608, top_label[i*8+4]*608),cvPoint(top_label[i*8+5]*608,top_label[i*8+6]*608),cv::Scalar(255,0,0),1,1,0); 
+    }
+
+    cv::imwrite(str, img);
    }
   
     
-   for (int i = 0; i < num_bboxes; i ++) {
-     LOG(INFO) << "item: " << top_label[i * 8 + 0] << " label:" << top_label[i * 8 + 1] << " " << top_label[i * 8 + 2];
+   //for (int i = 0; i < num_bboxes; i ++) {
+   //  LOG(INFO) << "item: " << top_label[i * 8 + 0] << " label:" << top_label[i * 8 + 1] << " " << top_label[i * 8 + 2];
      
-     for (int j = 3; j <= 6; j ++)
-     	LOG(INFO) << top_label[i * 8 + j];
+   //  for (int j = 3; j <= 6; j ++)
+   //  	LOG(INFO) << top_label[i * 8 + j];
    
-   }*/
+   //}
   //======================================================================//
 
   timer.Stop();

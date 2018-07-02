@@ -281,7 +281,7 @@ int test_detection() {
         LOG(WARNING) << "Missing false_pos for label: " << j;
         continue;
       }
-      string ap_version = "11point";
+      string ap_version = "Integral"; //11point
       vector<float> prec, rec;
       ComputeAP(true_pos[j], num_gt[j], false_pos[j], ap_version, &prec, &rec, &(APs[j]));
       mAP += APs[j];

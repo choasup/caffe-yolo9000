@@ -122,34 +122,51 @@ void LocateBBox(const NormalizedBBox& src_bbox, const NormalizedBBox& bbox,
 }
 
 bool ProjectBBox(const NormalizedBBox& src_bbox, const NormalizedBBox& bbox,
-                 NormalizedBBox* proj_bbox) {
-  /*
-  if (bbox.xmin() >= src_bbox.xmax() || bbox.xmax() <= src_bbox.xmin() ||
-      bbox.ymin() >= src_bbox.ymax() || bbox.ymax() <= src_bbox.ymin()) {
-  LOG(INFO) << "Calu box..";
-  LOG(INFO) << "bbox:" << bbox.xmin() << " " << bbox.ymin() << " "  << bbox.xmax() << " " << bbox.ymax();
-  LOG(INFO) << "crop box:" << src_bbox.xmin() << " " << src_bbox.ymin() << " " << src_bbox.xmax() << " " << src_bbox.ymax();
-     return false;
-  }
+                 NormalizedBBox* proj_bbox, int pad, int img_height, int img_width) {
+  //LOG(INFO) << "Project Crop BBox:" << src_bbox.xmin() << " " << src_bbox.xmax() << " " << src_bbox.ymin() << " " << src_bbox.ymax() ;
+  //LOG(INFO) << "Project GT BBox:" << bbox.xmin() << " " << bbox.xmax() << " " <<bbox.ymin() << " " << bbox.ymax() ;
+  //LOG(INFO) << "PAD:" << pad;
+  
+//  if (bbox.xmin() >= src_bbox.xmax() || bbox.xmax() <= src_bbox.xmin() ||
+//      bbox.ymin() >= src_bbox.ymax() || bbox.ymax() <= src_bbox.ymin()) {
+//    return false;
+//  }
 
-  
-  float src_width = src_bbox.xmax() - src_bbox.xmin();
-  float src_height = src_bbox.ymax() - src_bbox.ymin();
-  proj_bbox->set_xmin((bbox.xmin() - src_bbox.xmin()) / src_width);
-  proj_bbox->set_ymin((bbox.ymin() - src_bbox.ymin()) / src_height);
-  proj_bbox->set_xmax((bbox.xmax() - src_bbox.xmin()) / src_width);
-  proj_bbox->set_ymax((bbox.ymax() - src_bbox.ymin()) / src_height);
-  proj_bbox->set_difficult(bbox.difficult());
-  ClipBBox(*proj_bbox, proj_bbox);*/
-  proj_bbox->set_xmin(bbox.xmin()*(src_bbox.xmax()-src_bbox.xmin()) + src_bbox.xmin());
-  proj_bbox->set_xmax(bbox.xmax()*(src_bbox.xmax()-src_bbox.xmin()) + src_bbox.xmin());
-  proj_bbox->set_ymin(bbox.ymin()*(src_bbox.ymax()-src_bbox.ymin()) + src_bbox.ymin());
-  proj_bbox->set_ymax(bbox.ymax()*(src_bbox.ymax()-src_bbox.ymin()) + src_bbox.ymin());
-  proj_bbox->set_difficult(bbox.difficult());
-  ClipBBox(*proj_bbox, proj_bbox);
-  
-  //LOG(INFO) << "Proj bbox: "<<BBoxSize(*proj_bbox) << " :" << proj_bbox->xmin() << " " << proj_bbox->ymin() << " " << proj_bbox->xmax() << " " << proj_bbox->ymax();
+//  float src_width = src_bbox.xmax() - src_bbox.xmin();
+//  float src_height = src_bbox.ymax() - src_bbox.ymin();
+//  proj_bbox->set_xmin((bbox.xmin() - src_bbox.xmin()) / src_width);
+//  proj_bbox->set_ymin((bbox.ymin() - src_bbox.ymin()) / src_height);
+//  proj_bbox->set_xmax((bbox.xmax() - src_bbox.xmin()) / src_width);
+//  proj_bbox->set_ymax((bbox.ymax() - src_bbox.ymin()) / src_height);
+//  proj_bbox->set_difficult(bbox.difficult());
+      // ------------resize---------- //
+    if(pad == 1){
+ 	//LOG(INFO) << "proj:"<<proj_bbox->xmin() << " " << proj_bbox->xmax() <<" " <<proj_bbox->ymin() << " " << bbox->ymax();
+	proj_bbox->set_xmin(bbox.xmin()*(src_bbox.xmax()-src_bbox.xmin()) + src_bbox.xmin());
+	proj_bbox->set_xmax(bbox.xmax()*(src_bbox.xmax()-src_bbox.xmin()) + src_bbox.xmin());
+	proj_bbox->set_ymin(bbox.ymin()*(src_bbox.ymax()-src_bbox.ymin()) + src_bbox.ymin());
+	proj_bbox->set_ymax(bbox.ymax()*(src_bbox.ymax()-src_bbox.ymin()) + src_bbox.ymin());
+		
+        //LOG(INFO) << "img_h, w:" << img_height <<" " <<img_width;
+        //img_height = img_height * (src_bbox.ymax() - src_bbox.ymin());
+        //img_width = img_width * (src_bbox.xmax() - src_bbox.xmin());
+       // LOG(INFO) << "img_h, w:" << img_height <<" " <<img_width;
 	
+	//LOG(INFO) << "proj:"<<proj_bbox->xmin() << " " << proj_bbox->xmax() <<" " <<proj_bbox->ymin() << " " << proj_bbox->ymax();
+        //if (img_height > img_width) {
+        //    proj_bbox->set_xmin((proj_bbox->xmin()*img_width + (img_height-img_width)/2.0) / img_height);
+        //    proj_bbox->set_xmax((proj_bbox->xmax()*img_width + (img_height-img_width)/2.0) /img_height);
+       // }
+       // if (img_width > img_height) {
+       //     proj_bbox->set_ymin((proj_bbox->ymin()*img_height + (img_width-img_height)/2.0) / img_width);
+       //     proj_bbox->set_ymax((proj_bbox->ymax()*img_height + (img_width-img_height)/2.0) /img_width);
+       // }
+        //LOG(INFO) << "proj:"<<proj_bbox->xmin() << " " << proj_bbox->xmax() <<" " <<proj_bbox->ymin() << " " << proj_bbox->ymax(); 
+    }    
+   // ---------------------------- //  
+
+
+  ClipBBox(*proj_bbox, proj_bbox);
   if (BBoxSize(*proj_bbox) > 0) {
     return true;
   } else {

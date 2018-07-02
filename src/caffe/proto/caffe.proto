@@ -1833,6 +1833,7 @@ message EvalDetectionParameter {
   optional ScoreType score_type = 7 [default = MULTIPLY];
   optional float nms = 8 [default = -1];
   repeated float biases = 9;
+  optional SaveOutputParameter save_output_param = 10;
 }
 
 message ReorgParameter {

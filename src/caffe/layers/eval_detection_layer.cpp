@@ -2,10 +2,19 @@
 #include <cfloat>
 #include <vector>
 #include <cmath>
+#include <fstream>  // NOLINT(readability/streams)
+#include <map>
+#include <sstream>  // NOLINT(readability/streams)
+#include <string>
+#include <utility>
+
+
+#include "boost/filesystem.hpp"
 
 #include "caffe/layers/region_loss_layer.hpp"
 #include "caffe/layers/eval_detection_layer.hpp"
 #include "caffe/util/math_functions.hpp"
+#include "caffe/util/io.hpp"
 
 namespace caffe {
 
@@ -50,6 +59,40 @@ void ApplyNms(const vector<BoxData>& boxes, vector<int>* idxes, float threshold)
   }
 }
 
+// ------------------ ApplyNMS classes --------------//
+void ApplyNmsClass(const vector<BoxData>& boxes, vector<int>* idxes, float threshold){
+    map<int, int> idx_map;
+    
+    //for (int k = 0; k < classes; ++ k){
+        for (int i = 0; i < boxes.size(); ++ i){
+            if (idx_map.find(i) != idx_map.end())
+                continue;
+            vector<float> box1 = boxes[i].box_;
+            int c1_id = boxes[i].label_;
+            
+            for (int j = i + 1; j < boxes.size(); ++j){
+                if (idx_map.find(j) != idx_map.end())
+                    continue;
+                int c2_id = boxes[j].label_;
+                if (c1_id != c2_id)
+                    continue;
+                
+                vector<float> box2 = boxes[j].box_;
+                float iou = Calc_iou(box1, box2);
+                if (iou >= threshold){
+                    idx_map[j] = 1;
+                }
+            }
+        }
+    //}
+    
+    for (int i = 0; i < boxes.size(); ++i) {
+        if (idx_map.find(i) == idx_map.end()) {
+            idxes->push_back(i);
+        }
+    }
+}
+
 template <typename Dtype>
 void GetGTBox(int side, vector<vector<Dtype> > boxes, map<int, vector<BoxData> >* gt_boxes) {
   //int locations = pow(side, 2);
@@ -91,6 +134,7 @@ void GetGTBox(int side, vector<vector<Dtype> > boxes, map<int, vector<BoxData> >
 template <typename Dtype>
 void GetPredBox(int side, int num_object, int num_class, Dtype* input_data, map<int, vector<BoxData> >* pred_boxes, int score_type, float nms_threshold, vector<Dtype> biases) {
   vector<BoxData> tmp_boxes;
+  //vector<BoxData> tmp_boxes_v2;
   //int locations = pow(side, 2);
   for (int j = 0; j < side; ++j)
     for (int i = 0; i < side; ++i)
@@ -103,7 +147,12 @@ void GetPredBox(int side, int num_object, int num_class, Dtype* input_data, map<
 	float h = (exp(input_data[index + 3]) * biases[2 * n + 1]) / side;
 	softmax_region(input_data + index + 5, num_class);
 	
-	int pred_label = 0;
+	//int pred_label = 0;
+	float obj_score = sigmoid(input_data[index + 4]);	
+	if (obj_score < 0.005)
+		continue;
+	//------------------------------- version 1 -----------------------
+	/*int pred_label = 0;
 	float max_prob = input_data[index + 5];
 	for (int c = 0; c < num_class; ++c)
 	{
@@ -115,8 +164,8 @@ void GetPredBox(int side, int num_object, int num_class, Dtype* input_data, map<
 	}
 	BoxData pred_box;
 	pred_box.label_ = pred_label;
-	
-        float obj_score = sigmoid(input_data[index + 4]);
+		
+        //float obj_score = sigmoid(input_data[index + 4]);
 	if (score_type == 0) {
 	  pred_box.score_ = obj_score;
 	} else if (score_type == 1) {
@@ -130,7 +179,37 @@ void GetPredBox(int side, int num_object, int num_class, Dtype* input_data, map<
    	pred_box.box_.push_back(w);
 	pred_box.box_.push_back(h);
 	
-	tmp_boxes.push_back(pred_box);
+	if (pred_box.score_ > 0.005)
+		tmp_boxes_v2.push_back(pred_box);*/
+	//----------------------------------------------------------------
+
+	// ------------------------------ version 2 ---------------------------
+	for (int c = 0; c < num_class; ++ c){
+		float class_score = input_data[index + 5 + c];
+		if (class_score * obj_score > 0.005)	//darknet
+		{
+			BoxData pred_box;
+			pred_box.label_ = c;
+			if (score_type == 0){
+				pred_box.score_ = obj_score;
+			} else if (score_type == 1) {
+				pred_box.score_ = class_score;
+			} else {
+				pred_box.score_ = obj_score * class_score;
+			}
+		
+			pred_box.box_.push_back(x);
+			pred_box.box_.push_back(y);
+			pred_box.box_.push_back(w);
+			pred_box.box_.push_back(h);
+		
+			tmp_boxes.push_back(pred_box);
+		}
+	}
+	
+	// -------------------------------------------------------------------
+
+
 	//if (w > 1 || h > 1)
 	//	LOG(INFO)<<"Not nms pred_box:" << pred_box.label_ << " " << obj_score << " " << max_prob  << " " << pred_box.score_ << " " << pred_box.box_[0] << " " << pred_box.box_[1] << " " << pred_box.box_[2] << " " << pred_box.box_[3];	
       }  
@@ -191,7 +270,21 @@ void GetPredBox(int side, int num_object, int num_class, Dtype* input_data, map<
   if (nms_threshold >= 0) {
     std::sort(tmp_boxes.begin(), tmp_boxes.end(), BoxSortDecendScore);
     vector<int> idxes;
-    ApplyNms(tmp_boxes, &idxes, nms_threshold);
+    LOG(INFO) << "boxes size:" << tmp_boxes.size();
+    if (tmp_boxes.size() == 0)
+	return;  
+ 	
+    if (1){
+    	ApplyNmsClass(tmp_boxes, &idxes, nms_threshold);
+    	LOG(INFO) << "Apply Class NMS";
+    }
+    else{
+    	ApplyNms(tmp_boxes, &idxes, nms_threshold);
+    	LOG(INFO) << "Apply Obj NMS";
+    }
+    //LOG(INFO) << "NMS";	
+    int boxnum = 0;
+		
     for (int i = 0; i < idxes.size(); ++i) {
       BoxData box_data = tmp_boxes[idxes[i]];
       //**************************************************************************************//
@@ -202,7 +295,9 @@ void GetPredBox(int side, int num_object, int num_class, Dtype* input_data, map<
         (*pred_boxes)[box_data.label_] = vector<BoxData>();
       }
       (*pred_boxes)[box_data.label_].push_back(box_data);
+      boxnum ++;
     }
+    LOG(INFO) << "boxes size after NMS:" << boxnum;
   } else {
     for (std::map<int, vector<BoxData> >::iterator it = pred_boxes->begin(); it != pred_boxes->end(); ++it) {
       std::sort(it->second.begin(), it->second.end(), BoxSortDecendScore);
@@ -220,7 +315,39 @@ void EvalDetectionLayer<Dtype>::LayerSetUp(
   threshold_ = param.threshold();
   //sqrt_ = param.sqrt();
   //constriant_ = param.constriant();
-  
+  //---------------- output file -----------------//
+  SaveOutputParameter save_output_param = param.save_output_param();	
+  if (save_output_param.has_name_size_file()){
+  	string name_size_file_ = save_output_param.name_size_file();
+  	std::ifstream infile(name_size_file_.c_str());
+	CHECK(infile.good())
+          << "Failed to open name size file: " << name_size_file_;
+	string name;
+      	int height, width;
+      	while (infile >> name >> width >> height) {
+        	names_.push_back(name);
+        	width_.push_back(width);
+		height_.push_back(height);
+		//sizes_.push_back(std::make_pair(width, height));
+      	}
+      	infile.close();
+  }
+  name_count_ = 0;
+  if (save_output_param.has_label_map_file()) {
+      string label_map_file = save_output_param.label_map_file();
+      LabelMap label_map;
+      CHECK(ReadProtoFromTextFile(label_map_file, &label_map))
+          << "Failed to read label map file: " << label_map_file;
+      CHECK(MapLabelToName(label_map, true, &label_to_name_))
+          << "Failed to convert label to name.";
+      //CHECK(MapLabelToDisplayName(label_map, true, &label_to_display_name_))
+      //    << "Failed to convert label to display name.";
+  }
+  num_test_image_ = save_output_param.num_test_image();
+  output_directory_ = save_output_param.output_directory();
+  output_name_prefix_ = save_output_param.output_name_prefix();
+  //----------------------------------------------//
+
   nms_ = param.nms();
   
   for (int c = 0; c < param.biases_size(); ++c){
@@ -239,7 +366,7 @@ void EvalDetectionLayer<Dtype>::LayerSetUp(
       break;
     default:
       LOG(FATAL) << "Unknow score type.";
-  }
+  }  
 }
 
 template <typename Dtype>
@@ -336,13 +463,64 @@ void EvalDetectionLayer<Dtype>::Forward_cpu(
     map<int, vector<BoxData> > pred_boxes;
     //GetPredBox(side_, num_object_, num_class_, input_data + input_index, &pred_boxes, sqrt_, constriant_, score_type_, nms_);
     GetPredBox(side_, num_object_, num_class_, swap_data + input_index, &pred_boxes, score_type_, nms_, biases_);
+    
+    // ------------------------- save predicted boxes ----------------------//
+    for (std::map<int, vector<BoxData> >::iterator it = pred_boxes.begin(); it != pred_boxes.end(); ++it) {
+    	int label = it->first;
+	vector<BoxData>& p_boxes = it->second;
+	
+	for (int b = 0; b < p_boxes.size(); ++ b) {
+		boost::property_tree::ptree xmin, ymin, width, height;
+    		xmin.put<float>("", round((p_boxes[b].box_[0] - p_boxes[b].box_[2] / 2.0) * width_[name_count_] * 100) / 100.);
+    		ymin.put<float>("", round((p_boxes[b].box_[1] - p_boxes[b].box_[3] / 2.0) * height_[name_count_] * 100) / 100.);
+    		width.put<float>("", round(p_boxes[b].box_[2] * width_[name_count_] * 100) / 100.);
+    		height.put<float>("", round(p_boxes[b].box_[3] * height_[name_count_] * 100) / 100.);
+    		
+			
+    		boost::property_tree::ptree cur_bbox;
+    		cur_bbox.push_back(std::make_pair("", xmin));
+    		cur_bbox.push_back(std::make_pair("", ymin));
+    		cur_bbox.push_back(std::make_pair("", width));
+    		cur_bbox.push_back(std::make_pair("", height));
 
-    int index = top_index + num_class_;
+    		boost::property_tree::ptree cur_det;
+    		cur_det.put<int>("image_id", atoi(names_[name_count_].c_str()));
+    		cur_det.put<int>("category_id", atoi(label_to_name_[label + 1].c_str()));
+    		cur_det.add_child("bbox", cur_bbox);
+    		cur_det.put<float>("score", p_boxes[b].score_);
+
+    		detections_.push_back(std::make_pair("", cur_det));
+    	}
+    }
+
+    name_count_++;
+    //LOG(INFO) << name_count_ << " " << num_test_image_;
+
+    if (name_count_ % num_test_image_ == 0) {
+	  boost::filesystem::path output_directory(output_directory_);
+          boost::filesystem::path file(output_name_prefix_ + ".json");
+          boost::filesystem::path out_file = output_directory / file;
+          std::ofstream outfile;
+          outfile.open(out_file.string().c_str(), std::ofstream::out);
+
+          boost::regex exp("\"(null|true|false|-?[0-9]+(\\.[0-9]+)?)\"");
+          boost::property_tree::ptree output;
+          output.add_child("detections", detections_);
+          std::stringstream ss;
+          write_json(ss, output);
+          std::string rv = boost::regex_replace(ss.str(), exp, "$1");
+          outfile << rv.substr(rv.find("["), rv.rfind("]") - rv.find("["))
+              << std::endl << "]" << std::endl;
+	  LOG(INFO) << name_count_ << " vs. "<< num_test_image_ <<" "<< out_file << ":write results json.";
+   }
+    // ------------------------------------------------------------------//	
+
+    index = top_index + num_class_;
     int pred_count(0);
     for (std::map<int, vector<BoxData> >::iterator it = pred_boxes.begin(); it != pred_boxes.end(); ++it) {
       int label = it->first;
       vector<BoxData>& p_boxes = it->second;
-      if (gt_boxes.find(label) == gt_boxes.end()) {
+      if (gt_boxes.find(label) == gt_boxes.end()) {	//not find
         for (int b = 0; b < p_boxes.size(); ++b) {
           top_data[index + pred_count * 4 + 0] = p_boxes[b].label_;
           top_data[index + pred_count * 4 + 1] = p_boxes[b].score_;
